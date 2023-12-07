@@ -104,7 +104,7 @@ for domain_path in /home/*/public_html; do
 		echo "$backup_dir/$latest_backup"
 		echo "$SERVER_NAME:$SERVER_NAME/$TIMESTAMP"
 		# rclone mkdir
-        /usr/bin/rclone move "$backup_dir/$latest_backup" "$SERVER_NAME:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
+        /usr/bin/rclone move "$backup_dir/$latest_backup" "backup:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
         if [ $? -ne 0 ]; then
             log_error "Failed to upload backup for $domain"
             log_bin "$domain - cloud1"
