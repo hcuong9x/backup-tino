@@ -34,87 +34,84 @@ extension_zip="$script_dir/all-in-one-wp-migration-unlimited-extension.zip"
 echo "$extension_zip"
 
 for domain_path in /home/*/public_html; do
-    domain=$(basename "$(dirname "$domain_path")") # Extract domain name
-    log_info "Backing up $domain"
-    
-    cd "$domain_path" || continue  # Change directory to the WordPress installation
-    owner_group=$(stat -c "%U:%G" "$domain_path")
-    echo "$domain_path"
-    echo "$domain"
-    echo "$owner_group"
+	if [ -d "$domain_path" ]; then # If a directory
+		domain=$(basename "$(dirname "$domain_path")") # Extract domain name
+        log_info "Backing up $domain"
+        
+        cd "$domain_path" || continue  # Change directory to the WordPress installation
+        owner_group=$(stat -c "%U:%G" "$domain_path")
+        echo "$domain_path"
+		echo "$domain"
+        echo "$owner_group"
 
-    if [ "$domain" != "bk-onedrive.cd-site.com" ]; then
-        continue
-    fi
-
-    echo "Doing something for $domain"
-    if ! wp --allow-root plugin is-active all-in-one-wp-migration; then
-        # Check if the plugin is installed
-        if ! wp --allow-root plugin is-installed all-in-one-wp-migration; then
-            # Install and activate the plugin
-            echo "Install and activate all-in-one-wp-migration"
-            wp --allow-root plugin install all-in-one-wp-migration --activate
+		echo "Doing something for $domain"
+        if ! wp --allow-root plugin is-active all-in-one-wp-migration; then
+            # Check if the plugin is installed
+            if ! wp --allow-root plugin is-installed all-in-one-wp-migration; then
+                # Install and activate the plugin
+                echo "Install and activate all-in-one-wp-migration"
+                wp --allow-root plugin install all-in-one-wp-migration --activate
+            else
+                # Activate the plugin if it's installed but not active
+                echo "Activate all-in-one-wp-migration"
+                wp --allow-root plugin activate all-in-one-wp-migration
+            fi
+            sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
+            sudo chmod -R 755 /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
         else
-            # Activate the plugin if it's installed but not active
-            echo "Activate all-in-one-wp-migration"
-            wp --allow-root plugin activate all-in-one-wp-migration
+            echo "all-in-one-wp-migration is already active"
         fi
-        sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
-        sudo chmod -R 755 /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
-    else
-        echo "all-in-one-wp-migration is already active"
-    fi
 
-    if ! wp --allow-root plugin is-active all-in-one-wp-migration-unlimited-extension; then
-        # Check if the unlimited extension is installed
-        if ! wp --allow-root plugin is-installed all-in-one-wp-migration-unlimited-extension; then
-            echo "instal && active a1wm extension ??"
-            # Upload and install the unlimited extension
-            wp --allow-root plugin install "$extension_zip" --activate
+        if ! wp --allow-root plugin is-active all-in-one-wp-migration-unlimited-extension; then
+            # Check if the unlimited extension is installed
+            if ! wp --allow-root plugin is-installed all-in-one-wp-migration-unlimited-extension; then
+                echo "instal && active a1wm extension ??"
+                # Upload and install the unlimited extension
+                wp --allow-root plugin install "$extension_zip" --activate
+            else
+                echo "active a1wm ext??"
+                wp --allow-root plugin activate all-in-one-wp-migration-unlimited-extension
+            fi
+            sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
+            sudo chmod -R 755 /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
         else
-            echo "active a1wm ext??"
-            wp --allow-root plugin activate all-in-one-wp-migration-unlimited-extension
+            echo "all-in-one-wp-migration-unlimited-extension is already active"
         fi
-        sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
-        sudo chmod -R 755 /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
-    else
-        echo "all-in-one-wp-migration-unlimited-extension is already active"
-    fi
 
-    echo "Start backup for $domain"
-    backup_dir="/home/$domain/public_html/wp-content/ai1wm-backups"
-    # remove older backup
-    sudo rm -rf "$backup_dir"/*.wpress
+		echo "Start backup for $domain"
+		backup_dir="/home/$domain/public_html/wp-content/ai1wm-backups"
+        # remove older backup
+		sudo rm -rf "$backup_dir"/*.wpress
 
-    wp ai1wm backup --sites --allow-root
-    # Get the latest backup filename
-    cd "$backup_dir" || exit
-    latest_backup="$(ls -1t | head -n1)"
+        wp ai1wm backup --sites --allow-root
+		# Get the latest backup filename
+		cd "$backup_dir" || exit
+		latest_backup="$(ls -1t | head -n1)"
 
-    if [ $? -ne 0 ]; then
-        log_error "Failed to create backup for $domain"
-        log_bin "$domain - source1"
-    else
-        log_bin "$domain - source0"
-    fi
+        if [ $? -ne 0 ]; then
+            log_error "Failed to create backup for $domain"
+            log_bin "$domain - source1"
+        else
+            log_bin "$domain - source0"
+        fi
 
-    log_info "Uploading backup for $domain"
-    echo "Uploading backup for $domain"
-    echo "$backup_dir/$latest_backup"
-    echo "$SERVER_NAME:$SERVER_NAME/$TIMESTAMP"
-    # rclone mkdir
-    /usr/bin/rclone move "$backup_dir/$latest_backup" "backup:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
-    if [ $? -ne 0 ]; then
-        log_error "Failed to upload backup for $domain"
-        log_bin "$domain - cloud1"
-    else
-        log_bin "$domain - cloud0"
-    fi
-    sudo rm -rf "$backup_dir"/*.wpress
-    # Deactivate the All-in-One WP Migration plugins
-    wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
-    wp --allow-root plugin deactivate all-in-one-wp-migration
-	
+		log_info "Uploading backup for $domain"
+		echo "Uploading backup for $domain"
+		echo "$backup_dir/$latest_backup"
+		echo "$SERVER_NAME:$SERVER_NAME/$TIMESTAMP"
+		# rclone mkdir
+        /usr/bin/rclone move "$backup_dir/$latest_backup" "backup:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
+        if [ $? -ne 0 ]; then
+            log_error "Failed to upload backup for $domain"
+            log_bin "$domain - cloud1"
+        else
+            log_bin "$domain - cloud0"
+        fi
+        sudo rm -rf "$backup_dir"/*.wpress
+        # Deactivate the All-in-One WP Migration plugins
+        wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
+        wp --allow-root plugin deactivate all-in-one-wp-migration
+	fi
 done
 
 log_info "Backup finished"
