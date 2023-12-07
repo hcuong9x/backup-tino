@@ -45,6 +45,7 @@ for domain_path in /home/*/public_html; do
         echo "$owner_group"
 
 		echo "Doing something for $domain"
+
         if ! wp --allow-root plugin is-active all-in-one-wp-migration; then
             # Check if the plugin is installed
             if ! wp --allow-root plugin is-installed all-in-one-wp-migration; then
@@ -54,6 +55,7 @@ for domain_path in /home/*/public_html; do
             else
                 # Activate the plugin if it's installed but not active
                 echo "Activate all-in-one-wp-migration"
+                wp --allow-root plugin update all-in-one-wp-migration
                 wp --allow-root plugin activate all-in-one-wp-migration
             fi
             sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
