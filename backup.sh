@@ -81,6 +81,8 @@ backup_domain() {
     sudo rm -rf "$backup_dir"/*.wpress
 
     wp ai1wm backup --sites --allow-root --exclude-cache
+    echo "Backup Size: $(du -sh "$backup_dir"/*.wpress)"
+    
     # Get the latest backup filename
     cd "$backup_dir" || exit
     latest_backup="$(ls -1t | head -n1)"
