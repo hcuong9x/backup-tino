@@ -107,9 +107,9 @@ backup_domain() {
         log_bin "$domain - cloud0"
     fi
     sudo rm -rf "$backup_dir"/*.wpress
-    # Deactivate the All-in-One WP Migration plugins
-    wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
-    wp --allow-root plugin deactivate all-in-one-wp-migration
+    # uninstall the All-in-One WP Migration plugins
+    wp --allow-root plugin uninstall all-in-one-wp-migration-unlimited-extension --delete
+    wp --allow-root plugin uninstall all-in-one-wp-migration --delete
 
 }
 
