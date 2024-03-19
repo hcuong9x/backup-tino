@@ -9,7 +9,7 @@ LOG_FILE_BIN="/var/log/backup_bin.log"
 
 GROUP_ID=<group_id>
 BOT_TOKEN=<bot_token>
-BACKUP_LOCATION=<backup_loaction>
+BACKUP_LOCATION=<backup_location>
 
 echo "" > $LOG_FILE
 echo "" > $LOG_FILE_BIN
