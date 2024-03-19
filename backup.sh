@@ -68,6 +68,7 @@ backup_domain() {
             # Upload and install the unlimited extension
             wp --allow-root plugin install "$extension_zip" --activate
         else
+            wp --allow-root plugin update $extension_zip;
             wp --allow-root plugin activate all-in-one-wp-migration-unlimited-extension
         fi
         sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/
@@ -108,8 +109,11 @@ backup_domain() {
     fi
     sudo rm -rf "$backup_dir"/*.wpress
     # uninstall the All-in-One WP Migration plugins
-    wp --allow-root plugin uninstall all-in-one-wp-migration-unlimited-extension --delete
-    wp --allow-root plugin uninstall all-in-one-wp-migration --delete
+    wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
+    wp --allow-root plugin delete all-in-one-wp-migration-unlimited-extension
+
+    wp --allow-root plugin deactivate all-in-one-wp-migration
+    wp --allow-root plugin delete all-in-one-wp-migration
 
 }
 
