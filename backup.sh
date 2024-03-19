@@ -9,6 +9,7 @@ LOG_FILE_BIN="/var/log/backup_bin.log"
 
 GROUP_ID=<group_id>
 BOT_TOKEN=<bot_token>
+BACKUP_LOCATION=<backup_loaction>
 
 echo "" > $LOG_FILE
 echo "" > $LOG_FILE_BIN
@@ -98,7 +99,7 @@ backup_domain() {
     echo "Uploading backup for $domain"
     
     # rclone mkdir
-    /usr/bin/rclone move "$backup_dir/$latest_backup" "backup:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
+    /usr/bin/rclone move "$backup_dir/$latest_backup" "$BACKUP_LOCATION:$SERVER_NAME/$TIMESTAMP" >> "$LOG_FILE" 2>&1
     if [ $? -ne 0 ]; then
         log_error "Failed to upload backup for $domain"
         log_bin "$domain - cloud1"
