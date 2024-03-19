@@ -59,6 +59,7 @@ backup_domain() {
         sudo chown -R "$owner_group" /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
         sudo chmod -R 755 /home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration/
     else
+        wp --allow-root plugin update all-in-one-wp-migration
         echo "all-in-one-wp-migration is already active"
     fi
 
