@@ -63,18 +63,15 @@ backup_domain() {
     fi
 
     local ext_dir="/home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/"
-    if ! wp --allow-root plugin is-active all-in-one-wp-migration-unlimited-extension; then
-
-        if [ -d "$ext_dir" ]; then
-            rm -rf "$ext_dir"
-        fi
-        wp --allow-root plugin install "$extension_zip" --activate
-
-        sudo chown -R "$owner_group" "$ext_dir"
-        sudo chmod -R 755 "$ext_dir"
-    else
+    if wp --allow-root plugin is-active all-in-one-wp-migration-unlimited-extension; then
+        # Check if the unlimited extension is installed
         echo "all-in-one-wp-migration-unlimited-extension is already active"
+        wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
     fi
+    wp --allow-root plugin delete all-in-one-wp-migration-unlimited-extension
+    wp --allow-root plugin install "$extension_zip" --activate
+    sudo chown -R "$owner_group" "$ext_dir"
+    sudo chmod -R 755 "$ext_dir"
 
     echo "Start backup for $domain"
     backup_dir="/home/$domain/public_html/wp-content/ai1wm-backups"
