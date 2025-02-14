@@ -63,13 +63,13 @@ backup_domain() {
         echo "all-in-one-wp-migration is already active"
     fi
 
-    local ext_dir="/home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-unlimited-extension/"
-    if wp --allow-root plugin is-active all-in-one-wp-migration-unlimited-extension; then
+    local ext_dir="/home/"$domain"/public_html/wp-content/plugins/all-in-one-wp-migration-url-extension/"
+    if wp --allow-root plugin is-active all-in-one-wp-migration-url-extension; then
         # Check if the unlimited extension is installed
-        echo "all-in-one-wp-migration-unlimited-extension is already active"
-        wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
+        echo "all-in-one-wp-migration-url-extension is already active"
+        wp --allow-root plugin deactivate all-in-one-wp-migration-url-extension
     fi
-    wp --allow-root plugin delete all-in-one-wp-migration-unlimited-extension
+    wp --allow-root plugin delete all-in-one-wp-migration-url-extension
     wp --allow-root plugin install "$extension_zip" --activate
     sudo chown -R "$owner_group" "$ext_dir"
     sudo chmod -R 755 "$ext_dir"
@@ -106,8 +106,8 @@ backup_domain() {
     fi
     sudo rm -rf "$backup_dir"/*.wpress
     # uninstall the All-in-One WP Migration plugins
-    wp --allow-root plugin deactivate all-in-one-wp-migration-unlimited-extension
-    wp --allow-root plugin delete all-in-one-wp-migration-unlimited-extension
+    wp --allow-root plugin deactivate all-in-one-wp-migration-url-extension
+    wp --allow-root plugin delete all-in-one-wp-migration-url-extension
 
     wp --allow-root plugin deactivate all-in-one-wp-migration
     wp --allow-root plugin delete all-in-one-wp-migration
@@ -117,7 +117,7 @@ backup_domain() {
 log_info "Starting Backup Website"
 
 script_dir="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-extension_zip="$script_dir/all-in-one-wp-migration-unlimited-extension.zip"
+extension_zip="$script_dir/all-in-one-wp-migration-url-extension.zip"
 echo "$extension_zip"
 
 # Check if parameters are provided
